@@ -1,5 +1,6 @@
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Comparator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -60,37 +61,13 @@ public class FibDigits {
         if (n == 1)
             fib = fibs[0];
 
-        Map<Integer, Integer> numbers = new HashMap<>();
-        for(int i= 0; i<10; i++) {
-            numbers.put(i, 0);
-        }
-
-        for (char c : String.valueOf(fib).toCharArray()) {
-            int num = Integer.valueOf("" + c);
-            numbers.put(num, numbers.get(num) + 1);
-        }
-
-        LinkedHashMap<Integer, Integer> collect = numbers.entrySet().stream().
-                filter(e -> e.getValue() > 0).
-                sorted(getComparator()).
-                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (old, newValue) -> newValue, LinkedHashMap::new));
-
-        int[][] result = new int[collect.size()][];
-        int index = 0;
-        for(Map.Entry<Integer, Integer> entry: collect.entrySet()) {
-            result[index++] = new int[] {entry.getValue(), entry.getKey()};
-        }
-
-        return result;
-    }
-
-    private static Comparator<Map.Entry<Integer, Integer>> getComparator() {
-        return (o1, o2) -> {
-            int result = o2.getValue() - o1.getValue();
-            if(result == 0)
-                result = o2.getKey() - o2.getValue();
-            return result;
-        };
+        return fib.toString()
+                .chars().mapToObj(value -> value - '0')
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .map(e -> new int[]{e.getValue().intValue(), e.getKey()})
+                .sorted(Comparator.<int[]>comparingInt(p -> p[0]).thenComparing(p -> p[1]).reversed())
+                .toArray(int[][]::new);
     }
 
 }
