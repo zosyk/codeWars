@@ -1,24 +1,20 @@
+import java.util.Arrays;
+
 public class NextBiggerNumber {
 
     public static long nextBiggerNumber(long n) {
-        String s = String.valueOf(n);
+        char[] s = String.valueOf(n).toCharArray();
 
-        for (int i = s.length() - 2; i >= 0; i --) {
-            String sub = s.substring(i);
-            String sorted = sub.chars().sorted()
-                    .collect(StringBuilder::new,
-                            StringBuilder::appendCodePoint,
-                            StringBuilder::append)
-                    .reverse().toString();
-
-            if (Long.valueOf(sorted) > Long.valueOf(sub)) {
-                String first = sub.substring(0, 1);
-                int firstIndexSorted = sorted.indexOf(first);
-                StringBuilder sb = new StringBuilder(sorted);
-                sb.deleteCharAt(firstIndexSorted - 1).reverse();
-                return Long.valueOf(s.substring(0, i) + sorted.charAt(firstIndexSorted - 1) + sb.toString());
+        for(int i = s.length -2; i >=0; i--) {
+            for(int j = s.length - 1; j > i; j --) {
+                if(s[i] < s[j]) {
+                    char tmp = s[i];
+                    s[i] = s[j];
+                    s[j] = tmp;
+                    Arrays.sort(s, i + 1, s.length);
+                    return Long.valueOf(String.valueOf(s));
+                }
             }
-
         }
         return -1;
     }
