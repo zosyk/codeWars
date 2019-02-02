@@ -1,6 +1,3 @@
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class TimeFormatter {
 
     final static int ONE_MIN = 60;
@@ -8,34 +5,26 @@ public class TimeFormatter {
     final static int ONE_DAY = 24 * ONE_HOUR;
     final static int ONE_YEAR = 365 * ONE_DAY;
 
-    public static String formatDuration(int seconds) {
-        if (seconds == 0)
+    public static String formatDuration(int s) {
+        if (s == 0)
             return "now";
 
-        String years = formatTime(seconds, ONE_YEAR, "year");
-        String days = formatTime(seconds = seconds % ONE_YEAR, ONE_DAY, "day");
-        String hours = formatTime(seconds = seconds % ONE_DAY, ONE_HOUR, "hour");
-        String minutes = formatTime(seconds = seconds % ONE_HOUR, ONE_MIN, "minute");
-        String secondsLeft = formatTime(seconds % ONE_MIN, 1, "second");
+        String years = formatTime(s / ONE_YEAR, "year");
+        String days = formatTime((s = s % ONE_YEAR) / ONE_DAY, "day");
+        String hours = formatTime((s = s % ONE_DAY) / ONE_HOUR, "hour");
+        String minutes = formatTime((s = s % ONE_HOUR) / ONE_MIN, "minute");
+        String secondsLeft = formatTime(s % ONE_MIN, "second");
 
-        return addDelimiters(years, days, hours, minutes, secondsLeft);
-    }
+        String result = years + days + hours + minutes + secondsLeft;
+        result = result.substring(0, result.length() - 2);
+        result = result.replaceAll("(.*), (.*)$", "$1 and $2");
 
-    private static String addDelimiters(String... durations) {
-        String result = Stream.of(durations)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(", "));
-
-        int lastCommaIndex = result.lastIndexOf(",");
-        if (lastCommaIndex != -1)
-            result = result.substring(0, lastCommaIndex) + " and" + result.substring(lastCommaIndex + 1);
         return result;
     }
 
-    private static String formatTime(int seconds, int timeUnit, String unitName) {
-        int timeUnits = seconds / timeUnit;
-        if (timeUnits > 0)
-            return timeUnits + " " + unitName + (timeUnits == 1 ? "" : "s");
+    private static String formatTime(int n, String unitName) {
+        if (n > 0)
+            return String.format("%s %s%s, ", n, unitName, (n == 1 ? "" : "s"));
         else
             return "";
     }
