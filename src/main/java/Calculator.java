@@ -1,34 +1,23 @@
-import java.util.*;
+import java.util.Stack;
 
 public class Calculator {
-    private static final List<String> OPERATIONS = Arrays.asList("+", "-", "*", "/");
-
     public static Double evaluate(String expression) {
-        Deque<String> numberStack = new ArrayDeque<>();
-        Deque<String> operationStack = new ArrayDeque<>();
+        String[] parts = expression.split(" ");
+        Stack<Double> s = new Stack<>();
 
-        for(String l: expression.split(" ")) {
-            if(OPERATIONS.contains(l)) {
-                operationStack.push(l);
-            } else {
-                String op = operationStack.peek();
-                if("*".equals(op)) {
-                    numberStack.push((Double.valueOf(numberStack.pop()) * Double.valueOf(l)) + "");
-                    operationStack.pop();
-                } else if("/".equals(op)) {
-                    numberStack.push((Double.valueOf(numberStack.pop()) / Double.valueOf(l)) + "");
-                    operationStack.pop();
-                } else numberStack.push(l);
+        for(int i = 0; i< parts.length; i+=2) {
+            if(i ==0 || parts[i -1].equals("+")) {
+                s.push(Double.valueOf(parts[i]));
+            } else if (parts[i - 1].equals("-")) {
+                s.push(-Double.valueOf(parts[i]));
+            } else if (parts[i - 1].equals("*")) {
+                s.push(s.pop() * Double.valueOf(parts[i]));
+            } else if (parts[i - 1].equals("/")) {
+                s.push(s.pop() / Double.valueOf(parts[i]));
             }
         }
+        while (s.size() !=1) s.push(s.pop() + s.pop());
 
-        while (!operationStack.isEmpty()) {
-            String op = operationStack.pollLast();
-            if(op.equals("+")) {
-                numberStack.addLast((Double.valueOf(numberStack.pollLast()) + Double.valueOf(numberStack.pollLast()) + ""));
-            } else numberStack.addLast((Double.valueOf(numberStack.pollLast()) - Double.valueOf(numberStack.pollLast()) + ""));
-        }
-
-        return Double.valueOf(numberStack.pop());
+        return s.pop();
     }
 }
